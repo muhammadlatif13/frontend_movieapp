@@ -30,7 +30,7 @@ export default function LoginScreen() {
 
         try {
             const response = await fetch(
-                'https://1dde-114-5-244-115.ngrok-free.app/api/auth/login',
+                'http://localhost:3000/api/auth/login',
                 {
                     method: 'POST',
                     headers: {

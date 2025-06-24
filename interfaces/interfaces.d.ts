@@ -1,4 +1,5 @@
 interface Movie {
+    movie_id: number;
     id: number;
     title: string;
     adult: boolean;
