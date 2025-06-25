@@ -11,15 +11,17 @@ import {
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function LoginScreen() {
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+export default function RegisterScreen() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
 
-    const handleLogin = async () => {
+    const handleRegister = async () => {
         Keyboard.dismiss();
+
         if (!username.trim() || !password.trim()) {
             Alert.alert(
                 'Input Tidak Lengkap',
@@ -29,36 +31,36 @@ export default function LoginScreen() {
         }
 
         try {
-            const response = await fetch(
-                'http://localhost:3000/api/auth/login',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        password: password,
-                    }),
-                }
-            );
+            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            });
 
             const data = await response.json();
 
             if (!response.ok) {
-                Alert.alert('Login Gagal', data.message);
-            } else {
-                await AsyncStorage.setItem('username', data.user.username);
-
                 Alert.alert(
-                    'Login Berhasil',
-                    `Selamat datang ${data.user.username}`
+                    'Registrasi Gagal',
+                    data?.message || 'Terjadi kesalahan saat registrasi.'
                 );
-                router.replace('/(tabs)');
+                console.error('Registrasi gagal:', data);
+                return;
             }
+
+            Alert.alert(
+                'Registrasi Berhasil',
+                'Akun berhasil dibuat. Silakan login.',
+                [{ text: 'OK', onPress: () => router.replace('/auth/login') }]
+            );
         } catch (error) {
-            console.error('Error:', error);
-            Alert.alert('Error', 'Tidak dapat menghubungi server');
+            console.error('Terjadi kesalahan saat registrasi:', error);
+            Alert.alert('Error', 'Tidak dapat menghubungi server.');
         }
     };
 
@@ -68,11 +70,12 @@ export default function LoginScreen() {
 
             <View className="flex-1 justify-center px-6">
                 <Text className="text-white text-3xl font-bold text-center mb-2">
-                    Welcome Back
+                    Create Account
                 </Text>
                 <Text className="text-gray-400 text-base text-center mb-10">
-                    Sign in to continue
+                    Sign up to get started
                 </Text>
+
                 <View className="flex-row items-center bg-white/10 rounded-full px-4 h-12 mb-4">
                     <Feather
                         name="user"
@@ -87,8 +90,10 @@ export default function LoginScreen() {
                         value={username}
                         onChangeText={setUsername}
                         keyboardAppearance="dark"
+                        autoCapitalize="none"
                     />
                 </View>
+
                 <View className="flex-row items-center bg-white/10 rounded-full px-4 h-12">
                     <Feather
                         name="lock"
@@ -106,12 +111,13 @@ export default function LoginScreen() {
                         keyboardAppearance="dark"
                     />
                 </View>
+
                 <TouchableOpacity
-                    onPress={handleLogin}
+                    onPress={handleRegister}
                     className="bg-[#6A3DE8] py-3 rounded-full mt-6"
                 >
                     <Text className="text-white text-center font-bold text-base">
-                        Login
+                        Register
                     </Text>
                 </TouchableOpacity>
             </View>

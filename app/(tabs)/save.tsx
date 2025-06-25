@@ -1,51 +1,69 @@
-import {
-    View,
-    Text,
-    Image,
-    FlatList,
-    ActivityIndicator,
-    TouchableOpacity,
-} from 'react-native';
+import { View, Text, Image, FlatList, ActivityIndicator } from 'react-native';
 import { useState, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { icons } from '@/constants/icons';
 import MovieCard from '@/components/MovieCard';
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
 const Save = () => {
     const [watchlist, setWatchlist] = useState<Movie[]>([]);
     const [loading, setLoading] = useState(false);
-    const userId = '1'; // Ganti sesuai login user
+    const [userId, setUserId] = useState<string | null>(null);
+    const [initializing, setInitializing] = useState(true);
 
-    const fetchWatchlist = async () => {
+    const fetchUserIdAndWatchlist = async () => {
         setLoading(true);
         try {
-            const response = await fetch(
-                `http://localhost:3000/api/watchlist/${userId}`
-            );
-            if (!response.ok) {
-                const text = await response.text();
-                console.error('Gagal fetch watchlist:', text);
+            const storedUserId = await AsyncStorage.getItem('user_id');
+
+            if (!storedUserId) {
+                console.error('User ID tidak ditemukan di AsyncStorage');
+                setUserId(null);
                 setWatchlist([]);
                 setLoading(false);
                 return;
             }
+
+            setUserId(storedUserId);
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/watchlist/${storedUserId}`
+            );
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Gagal fetch watchlist:', text);
+                setWatchlist([]);
+                return;
+            }
+
             const data = await response.json();
             setWatchlist(data);
         } catch (error) {
             console.error('Error fetch watchlist:', error);
         } finally {
             setLoading(false);
+            setInitializing(false);
         }
     };
 
-    // Refresh setiap kali screen di-fokus
     useFocusEffect(
         useCallback(() => {
-            fetchWatchlist();
+            fetchUserIdAndWatchlist();
         }, [])
     );
+
+    if (initializing) {
+        return (
+            <SafeAreaView className="bg-primary flex-1 justify-center items-center">
+                <ActivityIndicator size="large" />
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView className="bg-primary flex-1 px-5">

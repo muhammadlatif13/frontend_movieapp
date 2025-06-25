@@ -13,7 +13,6 @@ const useTrendingMovies = (): UseTrendingMoviesReturn => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
-    // fungsi buat fetch trending movies
     const fetchTrendingMovies = useCallback(async () => {
         try {
             setLoading(true);

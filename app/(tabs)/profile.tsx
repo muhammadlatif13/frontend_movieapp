@@ -1,5 +1,3 @@
-// File: (tabs)/profile.js
-
 import { icons } from '@/constants/icons';
 import { View, Text, Image, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -32,7 +30,7 @@ const Profile = () => {
         try {
             await AsyncStorage.removeItem('username');
             Alert.alert('Logout Berhasil', 'Anda telah keluar dari akun.');
-            router.replace('/login');
+            router.replace('/auth/login');
         } catch (error) {
             console.error('Logout error:', error);
             Alert.alert('Error', 'Gagal saat mencoba logout.');

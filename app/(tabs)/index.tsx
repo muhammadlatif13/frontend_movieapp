@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 
 import useFetch from '@/services/usefetch';
 import { fetchMovies } from '@/services/api';
-import useTrendingMovies from '@/hooks/useTrendingMovies'; // Import custom hook
+import useTrendingMovies from '@/hooks/useTrendingMovies';
 
 import { icons } from '@/constants/icons';
 import { images } from '@/constants/images';
@@ -22,7 +22,6 @@ import TrendingCard from '@/components/TrendingCard';
 const Index = () => {
     const router = useRouter();
 
-    // Gunakan custom hook untuk realtime trending movies
     const {
         trendingMovies,
         loading: trendingLoading,
